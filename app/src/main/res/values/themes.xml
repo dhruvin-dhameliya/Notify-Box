@@ -1,0 +1,19 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.NotifyBox" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">#007DE1</item>
+        <item name="android:statusBarColor">#007DE1</item>
+
+        <!-- Surface color -->
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="android:textColorPrimary">@color/text_color_primary_light</item>
+        <item name="android:textColorSecondary">@color/text_color_secondary_light</item>
+
+        <!-- Other theme attributes -->
+        <item name="android:windowBackground">@color/surface_light</item>
+        <item name="android:colorBackground">@color/surface_light</item>
+        <item name="android:navigationBarColor">@color/surface_light</item>
+    </style>
+
+</resources>
