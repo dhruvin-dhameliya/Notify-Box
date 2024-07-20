@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/main_item"
+        android:title="Timing">
+        <menu>
+            <item
+                android:id="@+id/item_all"
+                android:checkable="true"
+                android:icon="@drawable/icon_all"
+                android:title="All"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/item_today"
+                android:checkable="true"
+                android:icon="@drawable/icon_today"
+                android:title="Today"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/item_yesterday"
+                android:checkable="true"
+                android:icon="@drawable/icon_yesterday"
+                android:title="Yesterday"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/labels_item"
+        android:title="Contact">
+        <menu>
+            <item
+                android:checkable="true"
+                android:icon="@drawable/icon_info"
+                android:title="About"
+                app:showAsAction="ifRoom" />
+            <item
+                android:checkable="true"
+                android:icon="@drawable/icon_star"
+                android:title="Rating"
+                app:showAsAction="ifRoom" />
+            <item
+                android:checkable="true"
+                android:icon="@drawable/icon_share"
+                android:title="Share"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+
+</menu>
