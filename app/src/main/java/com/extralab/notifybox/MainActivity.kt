@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_all -> loadAllNotifications()
                 R.id.nav_today -> loadTodayNotifications()
                 R.id.nav_yesterday -> loadYesterdayNotifications()
-                R.id.nav_current_week -> loadCurrentWeekNotifications()
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
@@ -99,7 +98,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkNotificationAccess() {
         if (isNotificationServiceEnabled(this)) {
             btn_open_settings.visibility = View.GONE
-            loadAllNotifications()
+            loadTodayNotifications()
         } else {
             recyclerView.visibility = View.GONE
             layout_no_notification.visibility = View.GONE
@@ -168,14 +167,6 @@ class MainActivity : AppCompatActivity() {
             notificationAdapter.submitList(notifications)
             updateRecyclerViewVisibility(notifications)
         })
-    }
-
-    private fun loadCurrentWeekNotifications() {
-        notificationViewModel.getCurrentWeekNotifications()
-            .observe(this, Observer { notifications ->
-                notificationAdapter.submitList(notifications)
-                updateRecyclerViewVisibility(notifications)
-            })
     }
 
     private fun updateRecyclerViewVisibility(notifications: List<NotificationEntity>) {

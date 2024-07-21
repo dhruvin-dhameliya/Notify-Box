@@ -30,7 +30,4 @@ interface NotificationDao {
 
     @Query("SELECT * FROM notifications WHERE date(timestamp / 1000, 'unixepoch') = date(:yesterdayDate / 1000, 'unixepoch') ORDER BY timestamp DESC")
     fun getYesterdayNotifications(yesterdayDate: Long): LiveData<List<NotificationEntity>>
-
-    @Query("SELECT * FROM notifications WHERE date(timestamp / 1000, 'unixepoch') >= date(:weekStartDate / 1000, 'unixepoch') ORDER BY timestamp DESC")
-    fun getCurrentWeekNotifications(weekStartDate: Long): LiveData<List<NotificationEntity>>
 }

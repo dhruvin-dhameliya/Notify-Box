@@ -23,12 +23,6 @@
                 android:icon="@drawable/icon_yesterday"
                 android:title="Yesterday"
                 app:showAsAction="ifRoom" />
-            <item
-                android:id="@+id/nav_current_week"
-                android:checkable="true"
-                android:icon="@drawable/icon_week"
-                android:title="Current Week"
-                app:showAsAction="ifRoom" />
         </menu>
     </item>
     <item

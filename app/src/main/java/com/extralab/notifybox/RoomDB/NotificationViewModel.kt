@@ -24,11 +24,4 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
         val yesterdayDate = calendar.timeInMillis
         return notificationDao.getYesterdayNotifications(yesterdayDate)
     }
-
-    fun getCurrentWeekNotifications(): LiveData<List<NotificationEntity>> {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
-        val weekStartDate = calendar.timeInMillis
-        return notificationDao.getCurrentWeekNotifications(weekStartDate)
-    }
 }
