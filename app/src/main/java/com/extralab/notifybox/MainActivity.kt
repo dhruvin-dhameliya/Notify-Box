@@ -2,7 +2,9 @@ package com.extralab.notifybox
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -12,6 +14,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -37,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
 
     private lateinit var notificationViewModel: NotificationViewModel
+    private val REQUEST_POST_NOTIFICATIONS = 1001
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -58,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
 
         displayDrawer()
+        runtimeNotificationPermission()
         checkNotificationAccess()
 
         // Set initial visibility
@@ -79,6 +85,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun runtimeNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this, android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_POST_NOTIFICATIONS
+                )
+            }
+        }
+    }
+
     private fun requestNotificationAccess() {
         val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
         requestPermissionLauncher.launch(intent)
@@ -86,8 +107,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun isNotificationServiceEnabled(context: Context): Boolean {
         val enabledNotificationListeners = Settings.Secure.getString(
-            context.contentResolver,
-            "enabled_notification_listeners"
+            context.contentResolver, "enabled_notification_listeners"
         )
         val packageName = context.packageName
         return enabledNotificationListeners != null && enabledNotificationListeners.contains(

@@ -30,4 +30,7 @@ interface NotificationDao {
 
     @Query("SELECT * FROM notifications WHERE date(timestamp / 1000, 'unixepoch') = date(:yesterdayDate / 1000, 'unixepoch') ORDER BY timestamp DESC")
     fun getYesterdayNotifications(yesterdayDate: Long): LiveData<List<NotificationEntity>>
+
+    @Query("DELETE FROM notifications WHERE date(timestamp / 1000, 'unixepoch') < date(:yesterdayDate / 1000, 'unixepoch')")
+    suspend fun deleteOldNotifications(yesterdayDate: Long)
 }
