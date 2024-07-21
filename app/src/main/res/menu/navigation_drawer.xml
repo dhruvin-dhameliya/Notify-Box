@@ -6,22 +6,28 @@
         android:title="Timing">
         <menu>
             <item
-                android:id="@+id/item_all"
+                android:id="@+id/nav_all"
                 android:checkable="true"
                 android:icon="@drawable/icon_all"
                 android:title="All"
                 app:showAsAction="ifRoom" />
             <item
-                android:id="@+id/item_today"
+                android:id="@+id/nav_today"
                 android:checkable="true"
                 android:icon="@drawable/icon_today"
                 android:title="Today"
                 app:showAsAction="ifRoom" />
             <item
-                android:id="@+id/item_yesterday"
+                android:id="@+id/nav_yesterday"
                 android:checkable="true"
                 android:icon="@drawable/icon_yesterday"
                 android:title="Yesterday"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/nav_current_week"
+                android:checkable="true"
+                android:icon="@drawable/icon_week"
+                android:title="Current Week"
                 app:showAsAction="ifRoom" />
         </menu>
     </item>

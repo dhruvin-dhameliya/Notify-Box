@@ -2,20 +2,25 @@ package com.extralab.notifybox
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.LinearLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.extralab.notifybox.Notifications.NotificationAdapter
-import com.extralab.notifybox.RoomDB.NotificationDatabase
+import com.extralab.notifybox.RoomDB.NotificationEntity
+import com.extralab.notifybox.RoomDB.NotificationViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -31,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navView: NavigationView
     private lateinit var toolbar: Toolbar
 
+    private lateinit var notificationViewModel: NotificationViewModel
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Check notification access permission again after returning from settings
@@ -44,12 +51,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        displayDrawer()
+        notificationViewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
 
         btn_open_settings = findViewById(R.id.btn_open_settings)
         layout_no_notification = findViewById(R.id.layout_no_notification)
         recyclerView = findViewById(R.id.recyclerView)
 
+        displayDrawer()
         checkNotificationAccess()
 
         // Set initial visibility
@@ -59,6 +67,17 @@ class MainActivity : AppCompatActivity() {
         notificationAdapter = NotificationAdapter(this)
         recyclerView.adapter = notificationAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_all -> loadAllNotifications()
+                R.id.nav_today -> loadTodayNotifications()
+                R.id.nav_yesterday -> loadYesterdayNotifications()
+                R.id.nav_current_week -> loadCurrentWeekNotifications()
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
+        }
     }
 
     private fun requestNotificationAccess() {
@@ -80,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkNotificationAccess() {
         if (isNotificationServiceEnabled(this)) {
             btn_open_settings.visibility = View.GONE
-            loadNotifications()
+            loadAllNotifications()
         } else {
             recyclerView.visibility = View.GONE
             layout_no_notification.visibility = View.GONE
@@ -92,26 +111,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadNotifications() {
-        val dao = NotificationDatabase.getDatabase(applicationContext).notificationDao()
-
-        // Observe changes in notifications
-        dao.getAllNotifications().observe(this) { notifications ->
-            notificationAdapter.submitList(notifications)
-            if (notifications.isEmpty()) {
-                recyclerView.visibility = View.GONE
-                layout_no_notification.visibility = View.VISIBLE
-            } else {
-                layout_no_notification.visibility = View.GONE
-                recyclerView.visibility = View.VISIBLE
-            }
-        }
-    }
-
     private fun showSnackbar(message: String) {
         Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
     }
 
+    // Display Drawer
     private fun displayDrawer() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -127,13 +131,64 @@ class MainActivity : AppCompatActivity() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+        toggle.drawerArrowDrawable.color = Color.WHITE
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    // If the drawer is closed, invoke the default back pressed behavior
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
+        })
     }
 
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
+
+    // GET ALL, TODAY, YESTERDAY, WEEK NOTIFICATIONS
+    private fun loadAllNotifications() {
+        notificationViewModel.getAllNotifications().observe(this, Observer { notifications ->
+            notificationAdapter.submitList(notifications)
+            updateRecyclerViewVisibility(notifications)
+        })
+    }
+
+    private fun loadTodayNotifications() {
+        notificationViewModel.getTodayNotifications().observe(this, Observer { notifications ->
+            notificationAdapter.submitList(notifications)
+            updateRecyclerViewVisibility(notifications)
+        })
+    }
+
+    private fun loadYesterdayNotifications() {
+        notificationViewModel.getYesterdayNotifications().observe(this, Observer { notifications ->
+            notificationAdapter.submitList(notifications)
+            updateRecyclerViewVisibility(notifications)
+        })
+    }
+
+    private fun loadCurrentWeekNotifications() {
+        notificationViewModel.getCurrentWeekNotifications()
+            .observe(this, Observer { notifications ->
+                notificationAdapter.submitList(notifications)
+                updateRecyclerViewVisibility(notifications)
+            })
+    }
+
+    private fun updateRecyclerViewVisibility(notifications: List<NotificationEntity>) {
+        if (!isNotificationServiceEnabled(this)) {
+            checkNotificationAccess()
+            return
+        }
+        if (notifications.isEmpty()) {
+            recyclerView.visibility = View.GONE
+            layout_no_notification.visibility = View.VISIBLE
         } else {
-            super.onBackPressed()
+            layout_no_notification.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
     }
 }
